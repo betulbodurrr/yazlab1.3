@@ -1,60 +1,70 @@
+from asyncio import Semaphore
+from operator import index
 import threading
 import time
 import tkinter as tk
 from Arayuz import Arayuz
 
-class Masa(threading.Thread):
-    def __init__(self, adi, semaphore, musteri):
-        threading.Thread.__init__(self)
-        self.adi = adi
-        self.semaphore = semaphore
-        self.musteriID = musteri
-
-    def run(self):
-        while True:
-            self.semaphore.acquire()  # müşteri geldiğinde masa dolu olduğunda semaphoreı al
-
-            print(f"{self.adi} masaya " + f"{self.musteriID} oturdu")
-            time.sleep(10)
-            self.semaphore.release()  # Müşteri gittiğinde semaphoreı serbest bırak
-            print(f"{self.adi} masa boş.")
-
 
 class Musteri(threading.Thread):
-    def __init__(self, musteriID, semaphore):
+    def __init__(self, musteriID, semaphore, masalar,mutex,mutex1,mutex2):
         threading.Thread.__init__(self)
         self.musteriID = musteriID
         self.semaphore = semaphore
+        self.masalar = masalar
 
     def run(self):
-        while True:
-            self.semaphore.acquire()  # Müşteri geldiğinde bir masa serbest bırak
-            for masa in masalar:
-                if masa.musteriID == "":
-                    masa.musteriID = self.musteriID
-                    break
-            self.semaphore.release()
-            print(f"{self.musteriID}  geldi.")
-            time.sleep(3)
-            self.semaphore.acquire()
-            for masa in masalar:
-                if masa.musteriID == self.musteriID:
-                    masa.musteriID = ""
-                    break
-            self.semaphore.release()
-            self.semaphore.release()  # Müşteri geldiğinde bir masa serbest bırak
-            print(f"{self.musteriID}  ayrıldı.")
+        global index
+        index=6
+        with mutex:
+            # masa bloklandı....
+            if 0 <= 6 - index < len(masalar):
+
+                masalar[6 - index].musteriID = self.musteriID
+                masalar[6 - index].durum = 1  # masa dolu olunca 1
+                print(
+                    f"{masalar[6-index].masaID}"
+                    + " kilitlendi."
+                    + f"{masalar[6-index].musteriID}"
+                    + " geldi."
+                    + f"{index}"
+                )
+                time.sleep(1)
+
+                masalar[6- index].durum = 0  # masa boş olunca 0
+                print(
+                    f"{masalar[6-index].masaID}"
+                    + " serbest."
+                    + f"{masalar[6-index].musteriID}"
+                    + " gitti."
+                    + f"{index}"
+                )
+                index-=1
+                if(index==1): return  #buradan çıkartamadaım hata veriyor   
+            else:
+                print("Invalid index, skipping the operation.")
+
+                
+
 
 
 class Garson(threading.Thread):
-    def __init__(self, adi):
+    def __init__(self, adi, masa, mutex):
         threading.Thread.__init__(self)
         self.adi = adi
+        self.masa = masa
+        self.mutex = mutex
 
     def run(self):
         while True:
-            print(f"{self.adi} yemeği servis ediyor.")
-            time.sleep(3)
+            with self.mutex:
+                if self.masa.durum == 1:  
+                    print(f"{self.adi} yemeği servis ediyor masaID: {self.masa.masaID}")
+                    
+                    time.sleep(3)
+                else:
+                    print(f"{self.adi} bekliyor masaID: {self.masa.masaID}")
+            time.sleep(1)
 
 
 class Asci(threading.Thread):
@@ -79,14 +89,24 @@ class Kasa(threading.Thread):
             time.sleep(3)
 
 
+class masa:
+    def __init__(self, musteriID, durum, masaID):
+        self.musteriID = musteriID
+        self.durum = durum
+        self.masaID = masaID
+
+
+index = 6
 if __name__ == "__main__":
+    mutex = threading.Lock()
+    mutex1= threading.Lock()
+    mutex2 = threading.Lock()
+
     arayuz = Arayuz()
-    #arayuz.baslat()
-    
+    # arayuz.baslat()
     masa_sayisi = 6
     garson_sayisi = 3
     asci_sayisi = 2
-    
     Liste = ["a", "b", "c", "d", "e"]
     Liste2 = ["f", "g", "h", "k", "y1", "y2"]
     Liste3 = ["l", "m", "y3"]
@@ -96,18 +116,33 @@ if __name__ == "__main__":
     semaphore = threading.Semaphore(masa_sayisi)  # Masa sayısı kadar semaphore oluştur
 
     masalar = []
+    garsonlar = []
 
     threads = []
-
-    for musteriId in Totaliste:  # müşterileri tek tek dönecek
-        yeni_musteri = Musteri(musteriId, semaphore)
-        threads.append(yeni_musteri)
-        yeni_musteri.start()  # Her müşteri geldiğinde yeni thread başlattık
+    musteriqueue, asciqueue, asciqueue, kasaqueue = (
+        Semaphore(0),
+        Semaphore(0),
+        Semaphore(0),
+        Semaphore(0),
+    )
+    for i in range(6):
+        masa1 = masa(0, 0, i)
+        masalar.append(masa1)
+        print(f"{masa1}" + " nesnesi oluşturuldu.")
         
-    for i in range(masa_sayisi):
-        masa = Masa(f"Masa {i + 1}", semaphore, "")
-        masalar.append(masa)
-        masa.start()  # Her masa için bir thread başlat
+    for i in range(3):
+        garson = Garson(f"Garson{i}", masalar[i], threading.Lock())  # Assign a waiter to each table
+        garsonlar.append(garson)
+        
+    for musteriId in Totaliste:  # müşterileri tek tek dönecek
+        yeni_musteri = Musteri(musteriId, semaphore, masalar,mutex,mutex1,mutex2)
+        threads.append(yeni_musteri)
+        print(musteriId + "'in thread oluşturuldu")
 
+        yeni_musteri.start()  # Her müşteri geldiğinde yeni thread başlattık
+        """
+    for garson in garsonlar:
+        garson.start()
+        """
     for thread in threads:
         thread.join()
