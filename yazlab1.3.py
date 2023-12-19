@@ -1,4 +1,5 @@
 from asyncio import Semaphore
+from itertools import count
 from operator import index
 import threading
 import time
@@ -7,19 +8,26 @@ from Arayuz import Arayuz
 
 
 class Musteri(threading.Thread):
-    def __init__(self, musteriID, semaphore, masalar,mutex,mutex1,mutex2):
+    def __init__(self, musteriID, semaphore, masalar,mutex,mutex1,musteriqueue):
         threading.Thread.__init__(self)
         self.musteriID = musteriID
         self.semaphore = semaphore
         self.masalar = masalar
-
+        self.musteriqueue=musteriqueue
+    def masa_ara(self,masalar):
+        for x in range(6):
+            if(masalar[x].durum==0):
+                return 1
+            
+        
     def run(self):
         global index
         index=6
         with mutex:
             # masa bloklandı....
-            if 0 <= 6 - index < len(masalar):
 
+            if True:
+                print(f"{self.masa_ara(masalar)}")
                 masalar[6 - index].musteriID = self.musteriID
                 masalar[6 - index].durum = 1  # masa dolu olunca 1
                 print(
@@ -29,20 +37,34 @@ class Musteri(threading.Thread):
                     + " geldi."
                     + f"{index}"
                 )
-                time.sleep(1)
+                time.sleep(5)
 
-                masalar[6- index].durum = 0  # masa boş olunca 0
-                print(
-                    f"{masalar[6-index].masaID}"
-                    + " serbest."
-                    + f"{masalar[6-index].musteriID}"
-                    + " gitti."
-                    + f"{index}"
-                )
+                
                 index-=1
-                if(index==1): return  #buradan çıkartamadaım hata veriyor   
+                if(index==1): 
+                    index=6
+                    time.sleep(10)
+                    print("6 kişi bitti")
+                    return  #buradan çıkartamadaım hata veriyor   
             else:
-                print("Invalid index, skipping the operation.")
+                print("masa yok.")
+                
+        for i in range(6):
+  
+            if(masalar[5-i].durum==1):
+                masalar[5- i].durum = 0  # masa boş olunca 0
+                print(
+                        f"{masalar[5-i].masaID}"
+                        + " serbest."
+                        + f"{masalar[5-i].musteriID}"
+                        + " gitti."
+                        + f"{i}"        
+                        )
+                i-=1
+                if(i==1): 
+                        i=5
+                        return  #buradan çıkartamadaım hata veriyor       
+
 
                 
 
@@ -107,6 +129,7 @@ if __name__ == "__main__":
     masa_sayisi = 6
     garson_sayisi = 3
     asci_sayisi = 2
+    
     Liste = ["a", "b", "c", "d", "e"]
     Liste2 = ["f", "g", "h", "k", "y1", "y2"]
     Liste3 = ["l", "m", "y3"]
@@ -120,7 +143,7 @@ if __name__ == "__main__":
 
     threads = []
     musteriqueue, asciqueue, asciqueue, kasaqueue = (
-        Semaphore(0),
+        threading.Semaphore(1),
         Semaphore(0),
         Semaphore(0),
         Semaphore(0),
@@ -135,10 +158,9 @@ if __name__ == "__main__":
         garsonlar.append(garson)
         
     for musteriId in Totaliste:  # müşterileri tek tek dönecek
-        yeni_musteri = Musteri(musteriId, semaphore, masalar,mutex,mutex1,mutex2)
+        yeni_musteri = Musteri(musteriId, semaphore, masalar,mutex,mutex1,musteriqueue)
         threads.append(yeni_musteri)
         print(musteriId + "'in thread oluşturuldu")
-
         yeni_musteri.start()  # Her müşteri geldiğinde yeni thread başlattık
         """
     for garson in garsonlar:
