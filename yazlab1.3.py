@@ -14,6 +14,7 @@ class Musteri(threading.Thread):
         self.semaphore = semaphore
         self.masalar = masalar
         self.musteriqueue=musteriqueue
+        
     def masa_ara(self,masalar):
         for x in range(6):
             if(masalar[x].durum==0):
@@ -37,7 +38,7 @@ class Musteri(threading.Thread):
                     + " geldi."
                     + f"{index}"
                 )
-                time.sleep(5)
+                time.sleep(2)
 
                 
                 index-=1
@@ -76,16 +77,25 @@ class Garson(threading.Thread):
         self.adi = adi
         self.masa = masa
         self.mutex = mutex
+        self.kilit = threading.Lock()
+
 
     def run(self):
+        global sayac
+        sayac=0
         while True:
-            with self.mutex:
-                if self.masa.durum == 1:  
-                    print(f"{self.adi} yemeği servis ediyor masaID: {self.masa.masaID}")
+            with self.kilit:
+                if self.masa[sayac].durum == 1:  
+                    print(f"{self.adi} yemeği servis ediyor masaID: {self.masa[sayac].masaID}")
                     
-                    time.sleep(3)
+                    time.sleep(2)
+                    self.masa[sayac].durum==2
+                    sayac+=1
                 else:
-                    print(f"{self.adi} bekliyor masaID: {self.masa.masaID}")
+                    print(f"{self.adi} bekliyor masaID: {self.masa[sayac].masaID}")
+                    sayac+=1
+            if(sayac==5):
+                sayac=0
             time.sleep(1)
 
 
@@ -154,17 +164,17 @@ if __name__ == "__main__":
         print(f"{masa1}" + " nesnesi oluşturuldu.")
         
     for i in range(3):
-        garson = Garson(f"Garson{i}", masalar[i], threading.Lock())  # Assign a waiter to each table
+        garson = Garson(f"Garson{i}", masalar, threading.Lock())  # Assign a waiter to each table
         garsonlar.append(garson)
         
     for musteriId in Totaliste:  # müşterileri tek tek dönecek
         yeni_musteri = Musteri(musteriId, semaphore, masalar,mutex,mutex1,musteriqueue)
         threads.append(yeni_musteri)
-        print(musteriId + "'in thread oluşturuldu")
+        #print(musteriId + "'in thread oluşturuldu")
         yeni_musteri.start()  # Her müşteri geldiğinde yeni thread başlattık
-        """
+     
     for garson in garsonlar:
         garson.start()
-        """
+       
     for thread in threads:
         thread.join()
