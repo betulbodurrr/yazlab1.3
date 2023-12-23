@@ -22,28 +22,27 @@ class Musteri(threading.Thread):
         
     def run(self):
         index=6
-        
-        for table_number in range(len(masalar)):
-            
+        while True:
             with mutex:
-            # masa bloklandı....
+                # masa bloklandı....
+                unoccupied_tables = [table_number for table_number, table in enumerate(masalar) if masalar[table_number].durum == 0]
 
-                if masalar[table_number].durum==0:
+                if unoccupied_tables:
+                    table_number = unoccupied_tables[0]
                     masalar[table_number].musteriID = self.musteriID
                     masalar[table_number].durum = 1  # masa dolu olunca 1
                     print(
-                        f"{masalar[table_number].masaID}"
-                        + " kilitlendi."
-                        + f"{masalar[table_number].musteriID}"
-                        + " geldi."
-                        + f"{table_number}"
+                                f"{masalar[table_number].masaID}"
+                                + " kilitlendi."
+                                + f"{masalar[table_number].musteriID}"
+                                + " geldi."
+                                + f"{table_number}"
                     )
                     break
-
-        else:
-            print(f"No available tables for customer {self.musteriID}")    #bekleyen müşteriler
-                
-         
+                else:
+                    print(f"Müşteriler için boş masa yok bu müşteriler bekliyor-> {self.musteriID}")    #bekleyen müşteriler
+            time.sleep(1)
+        
 
 
                 
