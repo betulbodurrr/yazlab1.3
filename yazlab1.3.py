@@ -14,7 +14,6 @@ class Musteri(threading.Thread):
         self.semaphore = semaphore
         self.masalar = masalar
         self.musteriqueue=musteriqueue
-        
     def masa_ara(self,masalar):
         for x in range(6):
             if(masalar[x].durum==0):
@@ -22,49 +21,29 @@ class Musteri(threading.Thread):
             
         
     def run(self):
-        global index
         index=6
-        with mutex:
+        
+        for table_number in range(len(masalar)):
+            
+            with mutex:
             # masa bloklandı....
 
-            if True:
-                print(f"{self.masa_ara(masalar)}")
-                masalar[6 - index].musteriID = self.musteriID
-                masalar[6 - index].durum = 1  # masa dolu olunca 1
-                print(
-                    f"{masalar[6-index].masaID}"
-                    + " kilitlendi."
-                    + f"{masalar[6-index].musteriID}"
-                    + " geldi."
-                    + f"{index}"
-                )
-                time.sleep(2)
+                if masalar[table_number].durum==0:
+                    masalar[table_number].musteriID = self.musteriID
+                    masalar[table_number].durum = 1  # masa dolu olunca 1
+                    print(
+                        f"{masalar[table_number].masaID}"
+                        + " kilitlendi."
+                        + f"{masalar[table_number].musteriID}"
+                        + " geldi."
+                        + f"{table_number}"
+                    )
+                    break
 
+        else:
+            print(f"No available tables for customer {self.musteriID}")    #bekleyen müşteriler
                 
-                index-=1
-                if(index==1): 
-                    index=6
-                    time.sleep(10)
-                    print("6 kişi bitti")
-                    return  #buradan çıkartamadaım hata veriyor   
-            else:
-                print("masa yok.")
-                
-        for i in range(6):
-  
-            if(masalar[5-i].durum==1):
-                masalar[5- i].durum = 0  # masa boş olunca 0
-                print(
-                        f"{masalar[5-i].masaID}"
-                        + " serbest."
-                        + f"{masalar[5-i].musteriID}"
-                        + " gitti."
-                        + f"{i}"        
-                        )
-                i-=1
-                if(i==1): 
-                        i=5
-                        return  #buradan çıkartamadaım hata veriyor       
+         
 
 
                 
@@ -72,53 +51,76 @@ class Musteri(threading.Thread):
 
 
 class Garson(threading.Thread):
-    def __init__(self, adi, masa, mutex):
+    def __init__(self, adi, masalar, mutex):
         threading.Thread.__init__(self)
         self.adi = adi
-        self.masa = masa
+        self.masalar = masalar
         self.mutex = mutex
-        self.kilit = threading.Lock()
 
 
     def run(self):
-        global sayac
-        sayac=0
+    
         while True:
-            with self.kilit:
-                if self.masa[sayac].durum == 1:  
-                    print(f"{self.adi} yemeği servis ediyor masaID: {self.masa[sayac].masaID}")
-                    
-                    time.sleep(2)
-                    self.masa[sayac].durum==2
-                    sayac+=1
+            with mutex:
+                unattended_tables = [table_number for table_number, table in enumerate(masalar) if masalar[table_number].durum == 1]
+                #print(f"{unattended_tables} bu masalarda müşteri var garson yok")
+
+                if unattended_tables:
+                    table_number = unattended_tables[0]
+                    masalar[table_number].durum = 2  
+                    print(f"{self.adi} yemeği {masalar[table_number].musteriID} 'e servis ediyor masaID: {masalar[table_number].masaID}")
+                    time.sleep(1)
                 else:
-                    print(f"{self.adi} bekliyor masaID: {self.masa[sayac].masaID}")
-                    sayac+=1
-            if(sayac==5):
-                sayac=0
+                    print(f"{self.adi} müşteri bekliyor ")
             time.sleep(1)
+       
 
 
 class Asci(threading.Thread):
-    def __init__(self, adi):
+    def __init__(self, adi, masalar, mutex):
         threading.Thread.__init__(self)
         self.adi = adi
+        self.masalar = masalar
+        self.mutex = mutex
 
     def run(self):
+        time.sleep(3)
         while True:
-            print(f"{self.adi} yemek yapıyor.")
-            time.sleep(2)
+            with mutex:
+                unattended_tables = [table_number for table_number, table in enumerate(masalar) if masalar[table_number].durum == 2]
 
+                if unattended_tables:
+                    table_number = unattended_tables[0]
+                    masalar[table_number].durum = 3 
+                    print(f"{self.adi} yemek yapıyor.{masalar[table_number].musteriID} masaID: {masalar[table_number].masaID}")
+                    time.sleep(1)
+                #else:
+                    #print(f"{self.adi} müşteri bekliyor ")
+            time.sleep(1)
 
 class Kasa(threading.Thread):
-    def __init__(self, adi):
+    def __init__(self, adi, masalar, mutex):
         threading.Thread.__init__(self)
         self.adi = adi
+        self.masalar = masalar
+        self.mutex = mutex
 
     def run(self):
+        time.sleep(5)
+        
         while True:
-            print(f"{self.adi} ücret ödendi.")
-            time.sleep(3)
+            with mutex:
+                unattended_tables = [table_number for table_number, table in enumerate(masalar) if masalar[table_number].durum == 3]
+
+                if unattended_tables:
+                    table_number = unattended_tables[0]
+                    masalar[table_number].durum =0
+                    print(f"{self.adi} ücret ödendi.{masalar[table_number].musteriID} masaID: {masalar[table_number].masaID} masanın yeni durumu {masalar[table_number].durum}")
+                    time.sleep(1)
+                #else:
+                    #print(f"{self.adi} müşteri gelmedi")
+            time.sleep(1)
+   
 
 
 class masa:
@@ -133,7 +135,8 @@ if __name__ == "__main__":
     mutex = threading.Lock()
     mutex1= threading.Lock()
     mutex2 = threading.Lock()
-
+    global tables
+    tables=None
     arayuz = Arayuz()
     # arayuz.baslat()
     masa_sayisi = 6
@@ -150,10 +153,11 @@ if __name__ == "__main__":
 
     masalar = []
     garsonlar = []
-
+    ascilar=[]
     threads = []
+    ParaKasası=[]
     musteriqueue, asciqueue, asciqueue, kasaqueue = (
-        threading.Semaphore(1),
+        Semaphore(0),
         Semaphore(0),
         Semaphore(0),
         Semaphore(0),
@@ -162,19 +166,26 @@ if __name__ == "__main__":
         masa1 = masa(0, 0, i)
         masalar.append(masa1)
         print(f"{masa1}" + " nesnesi oluşturuldu.")
+    for i in range(1):
+        kasa = Kasa(f"Kasa", masalar, mutex) 
+        ParaKasası.append(kasa)
+
+    for i in range(2):
+        asci = Asci(f"Asci{i}", masalar, mutex) 
+        ascilar.append(asci)
         
     for i in range(3):
-        garson = Garson(f"Garson{i}", masalar, threading.Lock())  # Assign a waiter to each table
-        garsonlar.append(garson)
+        garson = Garson(f"Garson{i}", masalar, mutex)  # Assign a waiter to each table
+        garsonlar.append(garson)    
         
     for musteriId in Totaliste:  # müşterileri tek tek dönecek
         yeni_musteri = Musteri(musteriId, semaphore, masalar,mutex,mutex1,musteriqueue)
         threads.append(yeni_musteri)
         #print(musteriId + "'in thread oluşturuldu")
-        yeni_musteri.start()  # Her müşteri geldiğinde yeni thread başlattık
+        #yeni_musteri.start()  # Her müşteri geldiğinde yeni thread başlattık
      
-    for garson in garsonlar:
+    for garson in garsonlar+threads+ascilar+ParaKasası:
         garson.start()
        
-    for thread in threads:
+    for thread in threads+garsonlar+ascilar+ParaKasası:
         thread.join()
