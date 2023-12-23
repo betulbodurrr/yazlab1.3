@@ -5,15 +5,17 @@ import threading
 import time
 import tkinter as tk
 from Arayuz import Arayuz
+import random
 
 
 class Musteri(threading.Thread):
-    def __init__(self, musteriID, semaphore, masalar,mutex,mutex1,musteriqueue):
+    def __init__(self, musteriID, semaphore, masalar,mutex,mutex1,musteriqueue,start_time):
         threading.Thread.__init__(self)
         self.musteriID = musteriID
         self.semaphore = semaphore
         self.masalar = masalar
         self.musteriqueue=musteriqueue
+        self.start_time=start_time
     def masa_ara(self,masalar):
         for x in range(6):
             if(masalar[x].durum==0):
@@ -21,12 +23,12 @@ class Musteri(threading.Thread):
             
         
     def run(self):
-        index=6
+
         while True:
             with mutex:
                 # masa bloklandı....
                 unoccupied_tables = [table_number for table_number, table in enumerate(masalar) if masalar[table_number].durum == 0]
-
+                
                 if unoccupied_tables:
                     table_number = unoccupied_tables[0]
                     masalar[table_number].musteriID = self.musteriID
@@ -37,10 +39,20 @@ class Musteri(threading.Thread):
                                 + f"{masalar[table_number].musteriID}"
                                 + " geldi."
                                 + f"{table_number}"
+                                
                     )
+                    sayi=random.uniform(1,2)
+                    time.sleep(sayi)
                     break
                 else:
-                    print(f"Müşteriler için boş masa yok bu müşteriler bekliyor-> {self.musteriID}")    #bekleyen müşteriler
+                    end_time = time.time() 
+                    gecen_zaman=end_time-start_time
+                    if(gecen_zaman>60):
+                        print(f"bu kadar zaman geçti : {gecen_zaman} ancak hala masa bulamadı.  {self.musteriID} gitti")
+                        unoccupied_tables.remove(unoccupied_tables[0])
+                    print(f"Müşteriler için boş masa yok bu müşteriler bekliyor-> {self.musteriID} geçen zaman{gecen_zaman}")    #bekleyen müşteriler
+                
+    
             time.sleep(1)
         
 
@@ -87,7 +99,8 @@ class Asci(threading.Thread):
         while True:
             with mutex:
                 unattended_tables = [table_number for table_number, table in enumerate(masalar) if masalar[table_number].durum == 2]
-
+                sayi=random.uniform(1,4)
+                time.sleep(sayi)
                 if unattended_tables:
                     table_number = unattended_tables[0]
                     masalar[table_number].durum = 3 
@@ -95,6 +108,8 @@ class Asci(threading.Thread):
                     time.sleep(1)
                 #else:
                     #print(f"{self.adi} müşteri bekliyor ")
+                
+
             time.sleep(1)
 
 class Kasa(threading.Thread):
@@ -128,6 +143,10 @@ class masa:
         self.durum = durum
         self.masaID = masaID
 
+class musteriTimer:
+    def __init__(self, musteriID, timer):
+        self.musteriID = musteriID
+        self.timer = time
 
 index = 6
 if __name__ == "__main__":
@@ -155,6 +174,7 @@ if __name__ == "__main__":
     ascilar=[]
     threads = []
     ParaKasası=[]
+    timer=[]
     musteriqueue, asciqueue, asciqueue, kasaqueue = (
         Semaphore(0),
         Semaphore(0),
@@ -178,7 +198,11 @@ if __name__ == "__main__":
         garsonlar.append(garson)    
         
     for musteriId in Totaliste:  # müşterileri tek tek dönecek
-        yeni_musteri = Musteri(musteriId, semaphore, masalar,mutex,mutex1,musteriqueue)
+        start_time = time.time()  # Capture the start time
+
+        yeni_musteri = Musteri(musteriId, semaphore, masalar,mutex,mutex1,musteriqueue,start_time)
+        time_musteri=musteriTimer(musteriId,0)
+        timer.append(time_musteri)
         threads.append(yeni_musteri)
         #print(musteriId + "'in thread oluşturuldu")
         #yeni_musteri.start()  # Her müşteri geldiğinde yeni thread başlattık
