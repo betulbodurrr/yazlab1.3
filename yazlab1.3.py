@@ -49,7 +49,7 @@ class Musteri(threading.Thread):
                     gecen_zaman=end_time-start_time
                     if(gecen_zaman>60):
                         print(f"bu kadar zaman geçti : {gecen_zaman} ancak hala masa bulamadı.  {self.musteriID} gitti")
-                        unoccupied_tables.remove(unoccupied_tables[0])
+                        unoccupied_tables.remove(unoccupied_tables[0])# ynilemeden dolayı burada bir hata veriyor root.after() fonskiyonundan dolayı
                     print(f"Müşteriler için boş masa yok bu müşteriler bekliyor-> {self.musteriID} geçen zaman{gecen_zaman}")    #bekleyen müşteriler
                 
     
@@ -99,8 +99,7 @@ class Asci(threading.Thread):
         while True:
             with mutex:
                 unattended_tables = [table_number for table_number, table in enumerate(masalar) if masalar[table_number].durum == 2]
-                sayi=random.uniform(1,4)
-                time.sleep(sayi)
+                time.sleep(3)
                 if unattended_tables:
                     table_number = unattended_tables[0]
                     masalar[table_number].durum = 3 
@@ -120,7 +119,7 @@ class Kasa(threading.Thread):
         self.mutex = mutex
 
     def run(self):
-        time.sleep(5)
+        time.sleep(1)
         
         while True:
             with mutex:
@@ -128,6 +127,7 @@ class Kasa(threading.Thread):
 
                 if unattended_tables:
                     table_number = unattended_tables[0]
+                    masalar[table_number].durum =4
                     masalar[table_number].durum =0
                     print(f"{self.adi} ücret ödendi.{masalar[table_number].musteriID} masaID: {masalar[table_number].masaID} masanın yeni durumu {masalar[table_number].durum}")
                     time.sleep(1)
@@ -147,7 +147,25 @@ class musteriTimer:
     def __init__(self, musteriID, timer):
         self.musteriID = musteriID
         self.timer = time
+        
 
+def update_label():
+    sayac=0
+    garson_ids = [masalar[sayac].musteriID for sayac, table in enumerate(masalar) if masalar[sayac].durum ==2]
+
+    asci_ids = [masalar[sayac].musteriID for sayac, table in enumerate(masalar) if masalar[sayac].durum ==3]
+
+    kasa_ids = [masalar[sayac].musteriID for sayac, table in enumerate(masalar) if masalar[sayac].durum ==4]
+
+    customer_ids = [masalar[sayac].musteriID for sayac, table in enumerate(masalar) if masalar[sayac].durum ==1]
+
+    
+    label.config(text=f"Musteri ID: {', '.join(map(str, customer_ids))}")
+    label1.config(text=f"Garson: {', '.join(map(str, garson_ids))}")
+    label2.config(text=f"Aşçı: {', '.join(map(str, asci_ids))}")
+    label3.config(text=f"Kasa: {', '.join(map(str, kasa_ids))}")
+    root.after(1, update_label)  # bir süre sonra güncellemede hata veriyor
+ 
 index = 6
 if __name__ == "__main__":
     mutex = threading.Lock()
@@ -155,16 +173,39 @@ if __name__ == "__main__":
     mutex2 = threading.Lock()
     global tables
     tables=None
+    baslamaDurumu=False
+    oncelikli_musteri=0
+    standart_musteri=0
     arayuz = Arayuz()
-    # arayuz.baslat()
-    masa_sayisi = 6
-    garson_sayisi = 3
-    asci_sayisi = 2
-    
+    arayuz.baslat()
+       # Create a Tkinter window
+    root = tk.Tk()
+    root.geometry("1000x500")
+
+    root.title("Restoran Yonetim Sistemi")
+
+    label = tk.Label(root, text="")
+    label1 = tk.Label(root, text="")
+    label2= tk.Label(root, text="")
+    label3 = tk.Label(root, text="")
+    label.pack()
+    label1.pack()
+    label2.pack()
+    label3.pack()
+
+#müşteri sayisinı alıp burada sıralama yapılacak
+    onceliksayisi=int(input("Öncelikli müşteri sayısı giriniz:"))
+    normalsayisi=int(input("Standart müşteri sayısı giriniz:"))
     Liste = ["a", "b", "c", "d", "e"]
     Liste2 = ["f", "g", "h", "k", "y1", "y2"]
     Liste3 = ["l", "m", "y3"]
     Totaliste = Liste + Liste2 + Liste3
+
+    masa_sayisi = 6
+    garson_sayisi = 3
+    asci_sayisi = 2
+               
+    
 
     masa_sayisi = 6
     semaphore = threading.Semaphore(masa_sayisi)  # Masa sayısı kadar semaphore oluştur
@@ -181,10 +222,14 @@ if __name__ == "__main__":
         Semaphore(0),
         Semaphore(0),
     )
+    
     for i in range(6):
         masa1 = masa(0, 0, i)
         masalar.append(masa1)
         print(f"{masa1}" + " nesnesi oluşturuldu.")
+    
+    
+    
     for i in range(1):
         kasa = Kasa(f"Kasa", masalar, mutex) 
         ParaKasası.append(kasa)
@@ -206,9 +251,13 @@ if __name__ == "__main__":
         threads.append(yeni_musteri)
         #print(musteriId + "'in thread oluşturuldu")
         #yeni_musteri.start()  # Her müşteri geldiğinde yeni thread başlattık
-     
+    time.sleep(2)
     for garson in garsonlar+threads+ascilar+ParaKasası:
         garson.start()
-       
+ 
+    
+    root.after(1, update_label)
+    root.mainloop()
+
     for thread in threads+garsonlar+ascilar+ParaKasası:
         thread.join()
