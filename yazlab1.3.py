@@ -194,18 +194,74 @@ if __name__ == "__main__":
     label3.pack()
 
 #müşteri sayisinı alıp burada sıralama yapılacak
-    onceliksayisi=int(input("Öncelikli müşteri sayısı giriniz:"))
-    normalsayisi=int(input("Standart müşteri sayısı giriniz:"))
+    print("1.Adım Müşeri Bilgisi")
+    onceliksayisi1=int(input("Öncelikli müşteri sayısı giriniz:"))
+    normalsayisi1=int(input("Standart müşteri sayısı giriniz:"))
+    print("2.Adım Müşeri Bilgisi")    
+    onceliksayisi2=int(input("Öncelikli müşteri sayısı giriniz:"))
+    normalsayisi2=int(input("Standart müşteri sayısı giriniz:"))
+    print("3.Adım Müşeri Bilgisi")    
+    onceliksayisi3=int(input("Öncelikli müşteri sayısı giriniz:"))
+    normalsayisi3=int(input("Standart müşteri sayısı giriniz:"))
+    """
     Liste = ["a", "b", "c", "d", "e"]
     Liste2 = ["f", "g", "h", "k", "y1", "y2"]
     Liste3 = ["l", "m", "y3"]
     Totaliste = Liste + Liste2 + Liste3
-
+    """
     masa_sayisi = 6
     garson_sayisi = 3
     asci_sayisi = 2
                
+    def oncelikliOlanlariBasaGetir(musteriListesi):
+        for i in range(len(musteriListesi)):
+            for j in range(i+1,len(musteriListesi)):
+                if(musteriListesi[i][0] == '0' and musteriListesi[j][0] == '1'):
+                    temp = musteriListesi[i]
+                    musteriListesi[i] = musteriListesi[j]
+                    musteriListesi[j] = temp
     
+        return musteriListesi
+    def musteri_olustur(onceliksayisi1,normalsayisi1,onceliksayisi2,normalsayisi2,onceliksayisi3,normalsayisi3):
+        Liste=[]
+        Liste2=[]
+        Liste3=[]
+        Liste4=[]
+        Liste5=[]
+        Liste6=[]
+        for i in range(onceliksayisi1):
+            Liste.append(f"1y{i}1")
+        for i in range(normalsayisi1):    
+            Liste2.append(f"0m{i}1")
+        for i in range(onceliksayisi2):
+            Liste.append(f"1y{i}2")
+        for i in range(normalsayisi2):    
+            Liste2.append(f"0m{i}2")
+        for i in range(onceliksayisi3):
+            Liste.append(f"1y{i}3")
+        for i in range(normalsayisi3):    
+            Liste2.append(f"0m{i}3")    
+        Totaliste = oncelikliOlanlariBasaGetir(Liste) + oncelikliOlanlariBasaGetir(Liste2)+oncelikliOlanlariBasaGetir(Liste3) + oncelikliOlanlariBasaGetir(Liste4)+oncelikliOlanlariBasaGetir(Liste5) + oncelikliOlanlariBasaGetir(Liste6) 
+        return Totaliste
+    masaGrupları = []
+    Totaliste=musteri_olustur(onceliksayisi1,normalsayisi1,onceliksayisi2,normalsayisi2,onceliksayisi3,normalsayisi3)
+    def otur():
+        if len(Totaliste)>6:
+            Totaliste[0:6] = oncelikliOlanlariBasaGetir(Totaliste[0:6])
+            masaGrupları.append(Totaliste[0:6])
+            Totaliste[0:6] = []
+        else:
+            masaGrupları.append(Totaliste[0:len(Totaliste)])  
+            Totaliste[0:len(Totaliste)] = []
+ 
+    while len(Totaliste) > 0:
+        otur()
+
+    for eleman in masaGrupları:
+        Totaliste += eleman
+        print(eleman)     
+
+    print(Totaliste)
 
     masa_sayisi = 6
     semaphore = threading.Semaphore(masa_sayisi)  # Masa sayısı kadar semaphore oluştur
