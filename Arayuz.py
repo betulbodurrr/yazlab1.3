@@ -64,7 +64,8 @@ time=int(input("toplam süre :"))
 musteriGelmeSikligi=int(input("periyot"))
 musterino=int(input("müşteri sayısı"))
 musteriSayisi=int((time/musteriGelmeSikligi)*musterino)
-
+with open("veriler.txt", "w") as dosya:
+    dosya.write(f"")
 
 def musteriOlustur(musteriSayisi):
     for i in range(musteriSayisi):
@@ -128,6 +129,36 @@ global sayac
 sayac=0
 data = []
 print("Hesaplanıyor...")
+
+"""
+for i in range(8):
+    
+    k=2**(i+1)
+    
+    masaOlustur(int(musteriSayisi/k))
+    
+    for s in range(int(len(masalar)/k)):
+        s+=k
+        garsonOlustur(s)
+        for m in range(int(len(garsonlar)/k)):
+            m+=k
+            asciOlustur(m)
+
+            #print(f"masa sayısı: {int(musteriSayisi/k)}--garson sayısı: {int(len(masalar)/k)}--asçı sayısı: {int(len(garsonlar)/k)}")
+            #maliyet=musteriSayisi-(int(musteriSayisi/k)+int(len(masalar)/k)+int(len(garsonlar)/k))
+            maliyet = musteriSayisi - int(len(masalar)) - int(len(garsonlar)) - int(len(ascilar)-int(sayac))
+    
+
+       
+    #print(f"verim: {maliyet}--masa sayısı: {len(masalar)}--garson sayısı: {len(garsonlar)}--asçı sayısı: {len(ascilar)}--bekleyen müşteriler{musteriSayisi}--giden müşteri {sayac}")
+    
+    
+            data.append({"verim":maliyet,"masa sayısı": len(masalar),"garson sayısı": len(garsonlar),"asçı sayısı": len(ascilar),"bekleyen müşteriler":musteriSayisi,"giden müşteri": sayac})
+    
+            with open("veriler.txt", "a") as dosya:
+                dosya.write(f"verim:{maliyet}-masa sayısı:{len(masalar)}-garson sayısı:{len(garsonlar)}-asçı sayısı:{len(ascilar)}-bekleyen müşteriler:{musteriSayisi}-giden müşteri{sayac}\n")
+"""
+
 for i in range(1000):
 
     k=2**(i+1)
@@ -159,10 +190,10 @@ for i in range(1000):
     
     
     data.append({"verim":maliyet,"masa sayısı": len(masalar),"garson sayısı": len(garsonlar),"asçı sayısı": len(ascilar),"bekleyen müşteriler":musteriSayisi,"giden müşteri": sayac})
-    """
+    
     with open("veriler.txt", "a") as dosya:
         dosya.write(f"verim:{maliyet}-masa sayısı:{len(masalar)}-garson sayısı:{len(garsonlar)}-asçı sayısı:{len(ascilar)}-bekleyen müşteriler:{musteriSayisi}-giden müşteri{sayac}\n")
-    """
+    
     for t in range(time):
 
         if(t % musteriGelmeSikligi):

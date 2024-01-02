@@ -55,10 +55,14 @@ class Musteri(threading.Thread):
             with mutex:
                 # masa bloklandı....
                 unoccupied_tables = [table_number for table_number, table in enumerate(masalar) if masalar[table_number].durum == 0]
+                
+    
                 if unoccupied_tables:                                   
                     table_number = unoccupied_tables[0]
                     masalar[table_number].musteriID = self.musteriID
                     masalar[table_number].durum = 1  # masa dolu olunca 1
+                    with open("surec.txt", "a") as dosya:
+                        dosya.write(f"{masalar[table_number].musteriID} geldi. {masalar[table_number].masaID} ID'ye sahip boş masaya oturdu.\n")
                     print(
                                 f"{masalar[table_number].masaID}"
                                 + " kilitlendi."
@@ -79,6 +83,8 @@ class Musteri(threading.Thread):
                     if(gecen_zaman>60):
                         print(f"bu kadar zaman geçti : {gecen_zaman} ancak hala masa bulamadı.  {self.musteriID} gitti")
                         #unoccupied_tables.remove(unoccupied_tables[0])# ynilemeden dolayı burada bir hata veriyor root.after() fonskiyonundan dolayı
+                        with open("surec.txt", "a") as dosya:
+                            dosya.write(f"{self.musteriID} geldi. {gecen_zaman} kadar süre geçti ve beklemekten sıkılıp sıradan çıktı.\n")
                         if unoccupied_tables:
                         
                             unoccupied_tables.pop(0)
@@ -104,7 +110,10 @@ class Garson(threading.Thread):
                 #print(f"{unattended_tables} bu masalarda müşteri var garson yok")
 
                 if unattended_tables :
+                    
                     table_number = unattended_tables[0]
+                    with open("surec.txt", "a") as dosya:
+                        dosya.write(f"{self.adi},{masalar[table_number].musteriID} sipariş aldı. masaID: {masalar[table_number].masaID}\n")
                     print(f"{self.adi} yemek {masalar[table_number].musteriID}'nin' siparişi alıyor masaID: {masalar[table_number].masaID}")
                     renk_degistir_g(table_number)
                     butonlar[table_number].config(text=masalar[table_number].musteriID)
@@ -151,7 +160,8 @@ class Asci(threading.Thread):
                 unattended_tables = [table_number for table_number, table in enumerate(masalar) if masalar[table_number].durum == 2]
                 if unattended_tables:
                     table_number = unattended_tables[0]
-                    
+                    with open("surec.txt", "a") as dosya:
+                        dosya.write(f"{self.adi},{masalar[table_number].musteriID}'ye yemek yapıyor. masaID: {masalar[table_number].masaID}\n")
                     print(f"{self.adi} yemek yapıyor.{masalar[table_number].musteriID} masaID: {masalar[table_number].masaID} masa no: {table_number}")
                     renk_degistir_a(table_number)
                     butonlar[table_number].config(text=masalar[table_number].musteriID)
@@ -197,11 +207,15 @@ class Kasa(threading.Thread):
 
                 if unattended_tables:
                     table_number = unattended_tables[0]
+                    with open("surec.txt", "a") as dosya:
+                        dosya.write(f"{masalar[table_number].musteriID}'hesabı ödüyor. masaID: {masalar[table_number].masaID}\n")
                     masalar[table_number].durum =4
                     renk_degistir_k(table_number)
                     butonlar[table_number].config(text=masalar[table_number].musteriID)
                     
                     time.sleep(1)
+                    with open("surec.txt", "a") as dosya:
+                        dosya.write(f"{masalar[table_number].musteriID}'hesabı ödedi. masaID: {masalar[table_number].masaID}\n")
                     renk_degistir_k(table_number)
                     butonlar[table_number].config(text="BOŞ")
                     masalar[table_number].durum =0
@@ -253,6 +267,8 @@ if __name__ == "__main__":
     mutex = threading.Lock()
     mutex1= threading.Lock()
     mutex2 = threading.Lock()
+    with open("surec.txt", "w") as dosya:
+        dosya.write(f"")
     global tables
     
     global ekransayac
