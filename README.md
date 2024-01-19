@@ -2,6 +2,8 @@
 
 Software Laboratory I, our 3rd project is the Restaurant Management System Project.
 It is written in the Python language.<br>
+<img align="center" src="https://raw.githubusercontent.com/devicons/devicon/master/icons/python/python-original.svg"  height="30" width="40" /></a><br>
+
 Project Description:<br>
 Within the scope of the project, the design of a restaurant management system is expected.
 This application is a real-time simulation of a restaurant's daily operations, utilizing multithreading concepts in the Python language.
@@ -11,10 +13,11 @@ The primary roles in the restaurant include: customer groups, waiters, chefs, an
 
 
 
-
 <img align="center" src="https://www.svgrepo.com/show/237418/turkey.svg"  height="30" width="40" />Tr:</a><br>
 Yazılım Laboratuvarı I dersimizin 3. projesi olan Restoran Yönetim Sistemi Projesidir.
 Python dilinde yazılmıştır.<br>
+<img align="center" src="https://raw.githubusercontent.com/devicons/devicon/master/icons/python/python-original.svg"  height="30" width="40" /></a><br>
+
 Proje Açıklaması:<br>
 Proje kapsamında, bir restoran yönetim sistemi tasarlanması beklenmektedir. 
 Bu uygulama, bir restoranın günlük işleyişini simüle eden ve multithreading konseptlerini kullanarak gerçek zamanlı bir ortamda çalışan bir uygulamadır.
