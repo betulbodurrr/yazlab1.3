@@ -30,4 +30,11 @@ Restorandaki ana roller şunlardır: müşteri grupları, garsonlar, aşçılar 
 
 <img align="center" src="https://www.svgrepo.com/show/87912/cooker.svg"  height="90" width="90" /></a>
 <img align="center" src="https://www.svgrepo.com/show/94691/cooker.svg"  height="90" width="90" /></a>
-<img align="center" src="https://www.svgrepo.com/show/285443/restaurant-plate.svg"  height="90" width="90" /></a><br>
+<img align="center" src="https://www.svgrepo.com/show/285443/restaurant-plate.svg"  height="90" width="90" /></a><br><br>
+Problem 1:<br>
+<img align="center" src="https://github.com/betulbodurrr/yazlab1.3/blob/main/resim_2024-01-30_205258686.png"  height="400" width="700" /></a><br>
+<img align="center" src="https://github.com/betulbodurrr/yazlab1.3/blob/main/resim_2024-01-30_205353643.png"  height="400" width="600" /></a><br>
+<img align="center" src="https://github.com/betulbodurrr/yazlab1.3/blob/main/resim_2024-01-30_205442633.png"  height="400" width="600" /></a><br>
+Problem 2:<br>
+<img align="center" src="https://github.com/betulbodurrr/yazlab1.3/blob/main/resim_2024-01-30_205427075.png"  height="300" width="600" /></a><br>
+
