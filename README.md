@@ -1,4 +1,3 @@
-<img align="center" src="https://www.svgrepo.com/show/365950/usa.svg"  height="20" width="30" />En:</a><br>
 
 
 <img align="center" src="https://www.svgrepo.com/show/237418/turkey.svg"  height="30" width="40" />Tr:</a><br>
@@ -13,7 +12,9 @@ Projede amaç, thread senkronizasyonu ve kaynak yönetimi kavramlarını uygulam
 Restorandaki ana roller şunlardır: müşteri grupları, garsonlar, aşçılar ve bir kasa elemanı.<br>
 
 [Proje Detayları için Tıklayınız.](https://github.com/betulbodurrr/yazlab1.3/blob/main/Project_3.pdf)
+<br>
 
+<img align="center" src="https://www.svgrepo.com/show/365950/usa.svg"  height="20" width="30" />En:</a><br>
 
 Software Laboratory I, our 3rd project is the Restaurant Management System Project.
 It is written in the Python language.<br>
